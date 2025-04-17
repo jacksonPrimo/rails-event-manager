@@ -19,7 +19,10 @@ services:
 
   api:
     build:
+      dockerfile: Dockerfile
       context: .
+      args:
+        - RAILS_ENV=development
     command: sh -c "bundler install && bin/rails db:migrate && bin/rails server -b 0.0.0.0 -p 3000"
     volumes:
       - .:/app
