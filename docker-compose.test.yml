@@ -1,0 +1,32 @@
+networks:
+  internal-network:
+    driver: bridge
+
+services:
+  database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: rails_event_manager_test
+    ports:
+      - '5432:5432'
+    networks:
+      - internal-network
+
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        - RAILS_ENV=test
+    command: sh -c "bundler install && bin/rails db:migrate && bundler exec rspec spec/services/test_spec.rb"
+    env_file:
+      - .env.test
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+    networks:
+      - internal-network 
