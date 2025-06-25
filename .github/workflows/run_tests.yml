@@ -10,6 +10,20 @@ jobs:
     if: ${{ github.event.pull_request.draft == false }}
     name: Test API
     runs-on: [ubuntu-latest]
+    services:
+      db:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: rails_event_manager_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,9 +36,14 @@ jobs:
       - name: Install gems
         run: bundle install --jobs 4 --retry 3
 
-      - name: Run tests
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-
       - name: Run Tests
+        env:
+          SECRET_KEY_BASE: '${{ secrets.SECRET_KEY_BASE }}'
+          POSTGRES_USER: '${{ secrets.POSTGRES_USER }}'
+          POSTGRES_PASS: '${{ secrets.POSTGRES_PASS }}'
+          POSTGRES_DB: '${{ secrets.POSTGRES_DB }}'
+          POSTGRES_PORT: '${{ secrets.POSTGRES_PORT }}'
+          POSTGRES_HOST: '${{ secrets.POSTGRES_HOST }}'
+          JWT_SECRET: '${{ secrets.JWT_SECRET }}'
         run: bundle exec rspec
+
