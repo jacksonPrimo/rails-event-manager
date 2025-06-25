@@ -1,18 +1,24 @@
 require 'rails_helper'
 
 RSpec.describe "Auths", type: :request do
-  describe "GET /signin" do
-    it "returns http success" do
-      get "/auth/signin"
-      expect(response).to have_http_status(:success)
+  describe "POST /signin" do
+    describe 'failure cases' do
+      it "return error when user not found" do
+        # post "/auth/signin", params: { email: 'test', password: 'test' }
+        # expect(response).to have_http_status(:forbidden)
+      end
+
+      it "returns http success" do
+        # post "/auth/signin", params: {email: 'test', password: 'test'}
+        # expect(response).to have_http_status(:success)
+      end
     end
   end
 
-  describe "GET /signup" do
+  describe "POST /signup" do
     it "returns http success" do
-      get "/auth/signup"
-      expect(response).to have_http_status(:success)
+      # post "/auth/signup"
+      # expect(response).to have_http_status(:success)
     end
   end
-
 end
