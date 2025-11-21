@@ -2,6 +2,8 @@ name: Run tests if release receive PR from bugfix/* or feature/* branches
 run-name: Pipeline runned by ${{ github.actor }}
 
 on:
+  push:
+    branches: [ main, '*' ]
   pull_request:
     branches: [ main ]
 
@@ -11,7 +13,7 @@ jobs:
     name: Test API
     runs-on: [ubuntu-latest]
     services:
-      db:
+      postgres:
         image: postgres:14-alpine
         env:
           POSTGRES_USER: root
@@ -26,24 +28,50 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Installing Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
+          bundler-cache: true
+        
+      - name: Config envs
+        run: |
+          echo "SECRET_KEY_BASE=a8f5f167f44f4964e6c998dee827110c" >> $GITHUB_ENV
+          echo "POSTGRES_USER=root" >> $GITHUB_ENV
+          echo "POSTGRES_PASS=root" >> $GITHUB_ENV
+          echo "POSTGRES_DB=rails_event_manager_test" >> $GITHUB_ENV
+          echo "POSTGRES_PORT=5432" >> $GITHUB_ENV
+          echo "POSTGRES_HOST=localhost" >> $GITHUB_ENV
+          echo "JWT_SECRET=123456" >> $GITHUB_ENV
 
-      - name: Install gems
-        run: bundle install --jobs 4 --retry 3
+      - name: Create database and run migration
+        run: |
+          sleep 5 
+          bin/rails db:setup RAILS_ENV=test
 
-      - name: Run Tests
-        env:
-          SECRET_KEY_BASE: '${{ secrets.SECRET_KEY_BASE }}'
-          POSTGRES_USER: '${{ secrets.POSTGRES_USER }}'
-          POSTGRES_PASS: '${{ secrets.POSTGRES_PASS }}'
-          POSTGRES_DB: '${{ secrets.POSTGRES_DB }}'
-          POSTGRES_PORT: '${{ secrets.POSTGRES_PORT }}'
-          POSTGRES_HOST: '${{ secrets.POSTGRES_HOST }}'
-          JWT_SECRET: '${{ secrets.JWT_SECRET }}'
+      - name: Run Rspec
         run: bundle exec rspec
+
+
+
+      # echo "PGHOST=localhost" >> $GITHUB_ENV
+      # echo "PGUSER=root" >> $GITHUB_ENV
+      # echo "PGPASSWORD=root" >> $GITHUB_ENV
+      # echo "PGPORT=5432" >> $GITHUB_ENV
+
+      # - name: Install gems
+      #   run: bundle install --jobs 4 --retry 3
+
+      # - name: Run Tests
+      #   env:
+      #     SECRET_KEY_BASE: '${{ secrets.SECRET_KEY_BASE }}'
+      #     POSTGRES_USER: '${{ secrets.POSTGRES_USER }}'
+      #     POSTGRES_PASS: '${{ secrets.POSTGRES_PASS }}'
+      #     POSTGRES_DB: '${{ secrets.POSTGRES_DB }}'
+      #     POSTGRES_PORT: '${{ secrets.POSTGRES_PORT }}'
+      #     POSTGRES_HOST: '${{ secrets.POSTGRES_HOST }}'
+      #     JWT_SECRET: '${{ secrets.JWT_SECRET }}'
+      #   run: bundle exec rspec
 
