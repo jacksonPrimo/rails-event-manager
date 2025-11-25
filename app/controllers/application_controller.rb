@@ -1,12 +1,18 @@
 class ApplicationController < ActionController::API
   include AuthHelper
+  rescue_from StandardError, with: :handle_internal_error
+  rescue_from ::CustomException, with: :handle_custom_exception
 
-  def render_result(result)
-    if result.is_a?(Hash) && result[:error]
-      render json: { error: result[:error] }, status: result[:code]
-    else
-      render json: result
-    end
+  def handle_internal_error(exception)
+    render json: {
+      error: 'Ocorreu um erro inesperado, tente novamente mais tarde',
+      details: exception.message.split(' for #<').first,
+      endpoint: "#{request.method} #{request.path}"
+    }, status: :internal_server_error
+  end
+
+  def handle_custom_exception(exception)
+    render json: { error: exception.message }, status: exception.code
   end
 
   delegate :params, to: :request
