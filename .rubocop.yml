@@ -24,3 +24,6 @@ AllCops:
   Exclude:
     - "bin/**/*"
     - "db/schema.rb"
+
+RSpec/MultipleExpectations:
+  Enabled: false
