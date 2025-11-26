@@ -27,4 +27,31 @@ RSpec.describe "Auth", type: :request do
       end
     end
   end
+
+  describe 'POST v1/auth/signup' do
+    describe 'failure cases' do
+      it 'failure case email already in use' do
+        user = create(:user)
+        post '/v1/auth/signup', params: { name: 'jack', email: user.email, password: 'test' }
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body['error']).to eq('email already in use')
+      end
+
+      it 'failure case password is too short' do
+        post '/v1/auth/signup', params: { name: 'jack', email: 'jack-test@gmail.com', password: 'test' }
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body['error']).to eq(
+          'cannot register user: ["Password is too short (minimum is 6 characters)"]'
+        )
+      end
+    end
+
+    describe 'successfull cases' do
+      it 'register a new user and return authentication token' do
+        post '/v1/auth/signup', params: { name: 'jack', email: 'jack-test@gmail.com', password: '123456' }
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['token']).not_to be_nil
+      end
+    end
+  end
 end
