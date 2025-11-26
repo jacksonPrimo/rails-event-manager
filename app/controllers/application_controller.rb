@@ -15,8 +15,6 @@ class ApplicationController < ActionController::API
     render json: { error: exception.message }, status: exception.code
   end
 
-  delegate :params, to: :request
-
   def authenticate_user
     token = request.headers['Authorization']&.split&.last
     decoded_token = decode_token(token)
