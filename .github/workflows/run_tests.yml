@@ -2,8 +2,6 @@ name: Run tests if release receive PR from bugfix/* or feature/* branches
 run-name: Pipeline runned by ${{ github.actor }}
 
 on:
-  push:
-    branches: [ main, '*' ]
   pull_request:
     branches: [ main ]
 
