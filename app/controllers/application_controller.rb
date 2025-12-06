@@ -16,14 +16,14 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_user
-    token = request.headers['Authorization']&.split&.last
+    token = request.headers['Authorization']&.remove('Bearer ')
     decoded_token = decode_token(token)
     user_id = decoded_token['user_id']
     user = User.find_by id: user_id
     request.params.merge!(session_user: user)
   rescue JWT::ExpiredSignature
-    render json: { error: 'token expirado' }, status: :forbidden
+    render json: { error: 'token expirado' }, status: :unauthorized
   rescue JWT::DecodeError
-    render json: { error: 'token inválido' }, status: :forbidden
+    render json: { error: 'token inválido' }, status: :unauthorized
   end
 end

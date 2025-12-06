@@ -5,5 +5,9 @@ Rails.application.routes.draw do
       post '/signin' => 'auth#signin'
       post '/signup' => 'auth#signup'
     end
+
+    scope :admin do
+      get '/list_all_users' => 'admin#list_all_users'
+    end
   end
 end
