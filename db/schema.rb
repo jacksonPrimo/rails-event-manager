@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_30_110025) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_06_202124) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,7 +19,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_30_110025) do
     t.bigint "author_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "description", default: "", null: false
+    t.datetime "target_date", default: -> { "(CURRENT_TIMESTAMP + 'P1D'::interval)" }, null: false
     t.index ["author_id"], name: "index_events_on_author_id"
+    t.check_constraint "char_length(description::text) <= 100", name: "description_max_length"
   end
 
   create_table "users", force: :cascade do |t|

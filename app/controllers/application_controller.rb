@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
   end
 
   def handle_custom_exception(exception)
-    render json: { error: exception.message }, status: exception.code
+    render json: { error: exception.message, details: exception.details }, status: exception.code
   end
 
   def authenticate_user

@@ -9,5 +9,9 @@ Rails.application.routes.draw do
     scope :admin do
       get '/list_all_users' => 'admin#list_all_users'
     end
+
+    scope :event do
+      post '/' => 'event#create'
+    end
   end
 end
